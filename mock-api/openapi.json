@@ -1,0 +1,1229 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "ACME API de Atendimento (contrato para Fin)",
+    "version": "1.0.0",
+    "description": "Contrato de referência para os conectores de dados do Fin. Endpoints fictícios para demonstração."
+  },
+  "servers": [
+    {
+      "url": "https://api.acme.com.br/v1"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer"
+      }
+    }
+  },
+  "security": [
+    {
+      "bearerAuth": []
+    }
+  ],
+  "paths": {
+    "/clientes/{customer_id}/pedidos": {
+      "get": {
+        "operationId": "listar_pedidos_cliente",
+        "summary": "Lista os pedidos recentes do cliente identificado. Use quando o cliente perguntar sobre 'meu pedido' sem informar o número.",
+        "tags": [
+          "status-pedido"
+        ],
+        "parameters": [
+          {
+            "name": "customer_id",
+            "in": "path",
+            "required": true,
+            "description": "ID do cliente na ACME",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "description": "em_aberto | todos",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "pedidos": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "numero_pedido": {
+                            "type": "string",
+                            "example": "ACM-102938"
+                          },
+                          "data_compra": {
+                            "type": "string",
+                            "example": "2026-11-01"
+                          },
+                          "status": {
+                            "type": "string",
+                            "example": "em_transito"
+                          },
+                          "valor_total": {
+                            "type": "number",
+                            "example": 459.9
+                          },
+                          "previsao_entrega": {
+                            "type": "string",
+                            "example": "2026-11-08"
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "pedidos": [
+                    {
+                      "numero_pedido": "ACM-102938",
+                      "data_compra": "2026-11-01",
+                      "status": "em_transito",
+                      "valor_total": 459.9,
+                      "previsao_entrega": "2026-11-08"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token inválido"
+          },
+          "404": {
+            "description": "Recurso não encontrado"
+          },
+          "422": {
+            "description": "Dados inválidos ou regra de negócio violada (ex.: remarcação com menos de 24h)"
+          }
+        }
+      }
+    },
+    "/pedidos/{numero_pedido}": {
+      "get": {
+        "operationId": "consultar_pedido",
+        "summary": "Consulta o status, previsão de entrega e rastreio de um pedido específico.",
+        "tags": [
+          "status-pedido"
+        ],
+        "parameters": [
+          {
+            "name": "numero_pedido",
+            "in": "path",
+            "required": true,
+            "description": "Número do pedido no formato ACM-000000",
+            "schema": {
+              "type": "string",
+              "pattern": "^ACM-\\d{6}$"
+            }
+          },
+          {
+            "name": "documento",
+            "in": "query",
+            "required": false,
+            "description": "CPF/CNPJ do titular (somente números). Obrigatório se o cliente não estiver identificado.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "numero_pedido": {
+                      "type": "string",
+                      "example": "ACM-102938"
+                    },
+                    "status": {
+                      "type": "string",
+                      "example": "em_transito"
+                    },
+                    "motivo_status": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "data_compra": {
+                      "type": "string",
+                      "example": "2026-11-01"
+                    },
+                    "data_aprovacao_pagamento": {
+                      "type": "string",
+                      "example": "2026-11-01"
+                    },
+                    "data_entrega": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "previsao_entrega": {
+                      "type": "string",
+                      "example": "2026-11-08"
+                    },
+                    "transportadora": {
+                      "type": "string",
+                      "example": "Transportadora Exemplo"
+                    },
+                    "codigo_rastreio": {
+                      "type": "string",
+                      "example": "TX123456789BR"
+                    },
+                    "url_rastreio": {
+                      "type": "string",
+                      "example": "https://rastreio.exemplo.com/TX123456789BR"
+                    },
+                    "itens": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "sku": {
+                            "type": "string",
+                            "example": "A-100"
+                          },
+                          "descricao": {
+                            "type": "string",
+                            "example": "Produto Exemplo"
+                          },
+                          "quantidade": {
+                            "type": "integer",
+                            "example": 1
+                          }
+                        }
+                      }
+                    },
+                    "endereco_entrega_mascarado": {
+                      "type": "string",
+                      "example": "Rua Ex***, 1** - São Paulo/SP"
+                    }
+                  }
+                },
+                "example": {
+                  "numero_pedido": "ACM-102938",
+                  "status": "em_transito",
+                  "motivo_status": null,
+                  "data_compra": "2026-11-01",
+                  "data_aprovacao_pagamento": "2026-11-01",
+                  "data_entrega": null,
+                  "previsao_entrega": "2026-11-08",
+                  "transportadora": "Transportadora Exemplo",
+                  "codigo_rastreio": "TX123456789BR",
+                  "url_rastreio": "https://rastreio.exemplo.com/TX123456789BR",
+                  "itens": [
+                    {
+                      "sku": "A-100",
+                      "descricao": "Produto Exemplo",
+                      "quantidade": 1
+                    }
+                  ],
+                  "endereco_entrega_mascarado": "Rua Ex***, 1** - São Paulo/SP"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token inválido"
+          },
+          "404": {
+            "description": "Recurso não encontrado"
+          },
+          "422": {
+            "description": "Dados inválidos ou regra de negócio violada (ex.: remarcação com menos de 24h)"
+          }
+        }
+      }
+    },
+    "/pedidos/{numero_pedido}/ocorrencias": {
+      "post": {
+        "operationId": "abrir_ocorrencia_pedido",
+        "summary": "Abre uma ocorrência (atraso, não recebido, avaria, item faltando, item errado) para um pedido. Só use após confirmar os dados com o cliente.",
+        "tags": [
+          "status-pedido"
+        ],
+        "parameters": [
+          {
+            "name": "numero_pedido",
+            "in": "path",
+            "required": true,
+            "description": "Número do pedido",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "protocolo": {
+                      "type": "string",
+                      "example": "OC-2026-558812"
+                    },
+                    "prazo_retorno_dias_uteis": {
+                      "type": "integer",
+                      "example": 2
+                    }
+                  }
+                },
+                "example": {
+                  "protocolo": "OC-2026-558812",
+                  "prazo_retorno_dias_uteis": 2
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token inválido"
+          },
+          "404": {
+            "description": "Recurso não encontrado"
+          },
+          "422": {
+            "description": "Dados inválidos ou regra de negócio violada (ex.: remarcação com menos de 24h)"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "tipo": {
+                    "type": "string",
+                    "description": "atraso | nao_recebido | avaria | item_faltando | item_errado",
+                    "enum": [
+                      "atraso",
+                      "nao_recebido",
+                      "avaria",
+                      "item_faltando",
+                      "item_errado"
+                    ]
+                  },
+                  "descricao": {
+                    "type": "string",
+                    "description": "Resumo do problema relatado pelo cliente"
+                  },
+                  "conversation_id": {
+                    "type": "string",
+                    "description": "ID da conversa no Intercom para rastreabilidade"
+                  }
+                },
+                "required": [
+                  "tipo",
+                  "descricao"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/agendamentos/disponibilidade": {
+      "get": {
+        "operationId": "consultar_disponibilidade",
+        "summary": "Retorna datas e períodos disponíveis para um tipo de serviço em um CEP.",
+        "tags": [
+          "agendamento"
+        ],
+        "parameters": [
+          {
+            "name": "tipo_servico",
+            "in": "query",
+            "required": true,
+            "description": "instalacao | manutencao | visita_tecnica",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "instalacao",
+                "manutencao",
+                "visita_tecnica"
+              ]
+            }
+          },
+          {
+            "name": "cep",
+            "in": "query",
+            "required": true,
+            "description": "CEP com 8 dígitos",
+            "schema": {
+              "type": "string",
+              "pattern": "^\\d{8}$"
+            }
+          },
+          {
+            "name": "data_inicial",
+            "in": "query",
+            "required": false,
+            "description": "AAAA-MM-DD; padrão = amanhã",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "opcoes": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "slot_id": {
+                            "type": "string",
+                            "example": "SLT-7781"
+                          },
+                          "data": {
+                            "type": "string",
+                            "example": "2026-11-10"
+                          },
+                          "periodo": {
+                            "type": "string",
+                            "example": "manha"
+                          },
+                          "janela": {
+                            "type": "string",
+                            "example": "08:00-12:00"
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "opcoes": [
+                    {
+                      "slot_id": "SLT-7781",
+                      "data": "2026-11-10",
+                      "periodo": "manha",
+                      "janela": "08:00-12:00"
+                    },
+                    {
+                      "slot_id": "SLT-7782",
+                      "data": "2026-11-10",
+                      "periodo": "tarde",
+                      "janela": "13:00-18:00"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token inválido"
+          },
+          "404": {
+            "description": "Recurso não encontrado"
+          },
+          "422": {
+            "description": "Dados inválidos ou regra de negócio violada (ex.: remarcação com menos de 24h)"
+          }
+        }
+      }
+    },
+    "/agendamentos": {
+      "post": {
+        "operationId": "criar_agendamento",
+        "summary": "Cria um agendamento no slot escolhido pelo cliente. Só execute após confirmação explícita de data, período e endereço.",
+        "tags": [
+          "agendamento"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "agendamento_id": {
+                      "type": "string",
+                      "example": "AGD-30411"
+                    },
+                    "status": {
+                      "type": "string",
+                      "example": "agendado"
+                    },
+                    "data": {
+                      "type": "string",
+                      "example": "2026-11-10"
+                    },
+                    "janela": {
+                      "type": "string",
+                      "example": "08:00-12:00"
+                    }
+                  }
+                },
+                "example": {
+                  "agendamento_id": "AGD-30411",
+                  "status": "agendado",
+                  "data": "2026-11-10",
+                  "janela": "08:00-12:00"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token inválido"
+          },
+          "404": {
+            "description": "Recurso não encontrado"
+          },
+          "422": {
+            "description": "Dados inválidos ou regra de negócio violada (ex.: remarcação com menos de 24h)"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "customer_id": {
+                    "type": "string",
+                    "description": "ID do cliente"
+                  },
+                  "slot_id": {
+                    "type": "string",
+                    "description": "slot_id retornado por consultar_disponibilidade"
+                  },
+                  "tipo_servico": {
+                    "type": "string",
+                    "description": "instalacao | manutencao | visita_tecnica"
+                  },
+                  "endereco": {
+                    "type": "string",
+                    "description": "Endereço completo com número e complemento"
+                  },
+                  "telefone_contato": {
+                    "type": "string",
+                    "description": "Telefone com DDD"
+                  },
+                  "numero_pedido": {
+                    "type": "string",
+                    "description": "Pedido relacionado (instalação)"
+                  }
+                },
+                "required": [
+                  "customer_id",
+                  "slot_id",
+                  "tipo_servico",
+                  "endereco",
+                  "telefone_contato"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/clientes/{customer_id}/agendamentos": {
+      "get": {
+        "operationId": "listar_agendamentos",
+        "summary": "Lista os agendamentos futuros e recentes do cliente identificado.",
+        "tags": [
+          "agendamento"
+        ],
+        "parameters": [
+          {
+            "name": "customer_id",
+            "in": "path",
+            "required": true,
+            "description": "ID do cliente",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "agendamentos": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "agendamento_id": {
+                            "type": "string",
+                            "example": "AGD-30411"
+                          },
+                          "tipo_servico": {
+                            "type": "string",
+                            "example": "instalacao"
+                          },
+                          "data": {
+                            "type": "string",
+                            "example": "2026-11-10"
+                          },
+                          "janela": {
+                            "type": "string",
+                            "example": "08:00-12:00"
+                          },
+                          "status": {
+                            "type": "string",
+                            "example": "confirmado"
+                          },
+                          "tecnico": {
+                            "type": "string",
+                            "example": "Carlos"
+                          },
+                          "remarcacoes_restantes": {
+                            "type": "integer",
+                            "example": 2
+                          },
+                          "horas_para_visita": {
+                            "type": "integer",
+                            "example": 70
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "agendamentos": [
+                    {
+                      "agendamento_id": "AGD-30411",
+                      "tipo_servico": "instalacao",
+                      "data": "2026-11-10",
+                      "janela": "08:00-12:00",
+                      "status": "confirmado",
+                      "tecnico": "Carlos",
+                      "remarcacoes_restantes": 2,
+                      "horas_para_visita": 70
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token inválido"
+          },
+          "404": {
+            "description": "Recurso não encontrado"
+          },
+          "422": {
+            "description": "Dados inválidos ou regra de negócio violada (ex.: remarcação com menos de 24h)"
+          }
+        }
+      }
+    },
+    "/agendamentos/{agendamento_id}": {
+      "patch": {
+        "operationId": "remarcar_agendamento",
+        "summary": "Move um agendamento para um novo slot. Só use se faltarem mais de 24h e houver remarcações restantes; exige confirmação do cliente.",
+        "tags": [
+          "agendamento"
+        ],
+        "parameters": [
+          {
+            "name": "agendamento_id",
+            "in": "path",
+            "required": true,
+            "description": "ID do agendamento",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "agendamento_id": {
+                      "type": "string",
+                      "example": "AGD-30411"
+                    },
+                    "status": {
+                      "type": "string",
+                      "example": "agendado"
+                    },
+                    "data": {
+                      "type": "string",
+                      "example": "2026-11-12"
+                    },
+                    "janela": {
+                      "type": "string",
+                      "example": "13:00-18:00"
+                    },
+                    "remarcacoes_restantes": {
+                      "type": "integer",
+                      "example": 1
+                    }
+                  }
+                },
+                "example": {
+                  "agendamento_id": "AGD-30411",
+                  "status": "agendado",
+                  "data": "2026-11-12",
+                  "janela": "13:00-18:00",
+                  "remarcacoes_restantes": 1
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token inválido"
+          },
+          "404": {
+            "description": "Recurso não encontrado"
+          },
+          "422": {
+            "description": "Dados inválidos ou regra de negócio violada (ex.: remarcação com menos de 24h)"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "novo_slot_id": {
+                    "type": "string",
+                    "description": "slot_id da nova data"
+                  }
+                },
+                "required": [
+                  "novo_slot_id"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/agendamentos/{agendamento_id}/cancelamento": {
+      "post": {
+        "operationId": "cancelar_agendamento",
+        "summary": "Cancela um agendamento. Ofereça remarcar antes. Exige confirmação e motivo.",
+        "tags": [
+          "agendamento"
+        ],
+        "parameters": [
+          {
+            "name": "agendamento_id",
+            "in": "path",
+            "required": true,
+            "description": "ID do agendamento",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "agendamento_id": {
+                      "type": "string",
+                      "example": "AGD-30411"
+                    },
+                    "status": {
+                      "type": "string",
+                      "example": "cancelado"
+                    },
+                    "taxa_aplicada": {
+                      "type": "number",
+                      "example": 0.0
+                    }
+                  }
+                },
+                "example": {
+                  "agendamento_id": "AGD-30411",
+                  "status": "cancelado",
+                  "taxa_aplicada": 0.0
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token inválido"
+          },
+          "404": {
+            "description": "Recurso não encontrado"
+          },
+          "422": {
+            "description": "Dados inválidos ou regra de negócio violada (ex.: remarcação com menos de 24h)"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "motivo": {
+                    "type": "string",
+                    "description": "Motivo informado pelo cliente"
+                  }
+                },
+                "required": [
+                  "motivo"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/financeiro/boletos": {
+      "get": {
+        "operationId": "listar_boletos",
+        "summary": "Lista boletos do cliente (em aberto, vencidos, pagos). Use para segunda via, boleto vencido, pagamento não identificado e histórico.",
+        "tags": [
+          "autosservico-financeiro"
+        ],
+        "parameters": [
+          {
+            "name": "customer_id",
+            "in": "query",
+            "required": false,
+            "description": "ID do cliente (se identificado)",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "documento",
+            "in": "query",
+            "required": false,
+            "description": "CPF/CNPJ (somente números), se o cliente não estiver identificado",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "fator_verificacao",
+            "in": "query",
+            "required": false,
+            "description": "Data de nascimento (AAAA-MM-DD) ou 4 últimos dígitos do celular; obrigatório junto com documento",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "description": "em_aberto | vencido | pago | todos (padrão em_aberto)",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "titular_mascarado": {
+                      "type": "string",
+                      "example": "***.456.789-**"
+                    },
+                    "boletos": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "boleto_id": {
+                            "type": "string",
+                            "example": "BOL-88120"
+                          },
+                          "referencia": {
+                            "type": "string",
+                            "example": "Pedido ACM-102938"
+                          },
+                          "valor_original": {
+                            "type": "number",
+                            "example": 200.0
+                          },
+                          "vencimento": {
+                            "type": "string",
+                            "example": "2026-10-20"
+                          },
+                          "status": {
+                            "type": "string",
+                            "example": "vencido"
+                          },
+                          "dias_atraso": {
+                            "type": "integer",
+                            "example": 15
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "titular_mascarado": "***.456.789-**",
+                  "boletos": [
+                    {
+                      "boleto_id": "BOL-88120",
+                      "referencia": "Pedido ACM-102938",
+                      "valor_original": 200.0,
+                      "vencimento": "2026-10-20",
+                      "status": "vencido",
+                      "dias_atraso": 15
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token inválido"
+          },
+          "404": {
+            "description": "Recurso não encontrado"
+          },
+          "422": {
+            "description": "Dados inválidos ou regra de negócio violada (ex.: remarcação com menos de 24h)"
+          }
+        }
+      }
+    },
+    "/financeiro/boletos/{boleto_id}/segunda-via": {
+      "post": {
+        "operationId": "gerar_segunda_via",
+        "summary": "Gera a segunda via de um boleto (com valor atualizado se vencido), retornando linha digitável, Pix copia e cola e link do PDF.",
+        "tags": [
+          "autosservico-financeiro"
+        ],
+        "parameters": [
+          {
+            "name": "boleto_id",
+            "in": "path",
+            "required": true,
+            "description": "boleto_id retornado por listar_boletos",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "boleto_id": {
+                      "type": "string",
+                      "example": "BOL-88120"
+                    },
+                    "valor_original": {
+                      "type": "number",
+                      "example": 200.0
+                    },
+                    "multa": {
+                      "type": "number",
+                      "example": 4.0
+                    },
+                    "juros": {
+                      "type": "number",
+                      "example": 1.0
+                    },
+                    "valor_atualizado": {
+                      "type": "number",
+                      "example": 205.0
+                    },
+                    "novo_vencimento": {
+                      "type": "string",
+                      "example": "2026-11-10"
+                    },
+                    "linha_digitavel": {
+                      "type": "string",
+                      "example": "00190.00009 01234.567890 12345.678901 1 98760000020500"
+                    },
+                    "pix_copia_e_cola": {
+                      "type": "string",
+                      "example": "00020126...6304ABCD"
+                    },
+                    "url_pdf": {
+                      "type": "string",
+                      "example": "https://minhaconta.acme.com.br/boletos/BOL-88120.pdf"
+                    }
+                  }
+                },
+                "example": {
+                  "boleto_id": "BOL-88120",
+                  "valor_original": 200.0,
+                  "multa": 4.0,
+                  "juros": 1.0,
+                  "valor_atualizado": 205.0,
+                  "novo_vencimento": "2026-11-10",
+                  "linha_digitavel": "00190.00009 01234.567890 12345.678901 1 98760000020500",
+                  "pix_copia_e_cola": "00020126...6304ABCD",
+                  "url_pdf": "https://minhaconta.acme.com.br/boletos/BOL-88120.pdf"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token inválido"
+          },
+          "404": {
+            "description": "Recurso não encontrado"
+          },
+          "422": {
+            "description": "Dados inválidos ou regra de negócio violada (ex.: remarcação com menos de 24h)"
+          }
+        }
+      }
+    },
+    "/financeiro/boletos/{boleto_id}/envio": {
+      "post": {
+        "operationId": "enviar_boleto_email",
+        "summary": "Envia o boleto para o e-mail cadastrado do titular.",
+        "tags": [
+          "autosservico-financeiro"
+        ],
+        "parameters": [
+          {
+            "name": "boleto_id",
+            "in": "path",
+            "required": true,
+            "description": "ID do boleto",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "enviado": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "email_mascarado": {
+                      "type": "string",
+                      "example": "jo***@gmail.com"
+                    }
+                  }
+                },
+                "example": {
+                  "enviado": true,
+                  "email_mascarado": "jo***@gmail.com"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token inválido"
+          },
+          "404": {
+            "description": "Recurso não encontrado"
+          },
+          "422": {
+            "description": "Dados inválidos ou regra de negócio violada (ex.: remarcação com menos de 24h)"
+          }
+        }
+      }
+    },
+    "/financeiro/boletos/{boleto_id}/comprovantes": {
+      "post": {
+        "operationId": "registrar_comprovante",
+        "summary": "Registra um comprovante de pagamento enviado pelo cliente para análise do financeiro.",
+        "tags": [
+          "autosservico-financeiro"
+        ],
+        "parameters": [
+          {
+            "name": "boleto_id",
+            "in": "path",
+            "required": true,
+            "description": "ID do boleto",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "protocolo": {
+                      "type": "string",
+                      "example": "FIN-2026-11873"
+                    },
+                    "prazo_retorno_dias_uteis": {
+                      "type": "integer",
+                      "example": 2
+                    }
+                  }
+                },
+                "example": {
+                  "protocolo": "FIN-2026-11873",
+                  "prazo_retorno_dias_uteis": 2
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token inválido"
+          },
+          "404": {
+            "description": "Recurso não encontrado"
+          },
+          "422": {
+            "description": "Dados inválidos ou regra de negócio violada (ex.: remarcação com menos de 24h)"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "data_pagamento": {
+                    "type": "string",
+                    "description": "AAAA-MM-DD"
+                  },
+                  "forma_pagamento": {
+                    "type": "string",
+                    "description": "pix | boleto"
+                  },
+                  "url_anexo": {
+                    "type": "string",
+                    "description": "URL do anexo enviado na conversa"
+                  }
+                },
+                "required": [
+                  "data_pagamento",
+                  "forma_pagamento",
+                  "url_anexo"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/pedidos/{numero_pedido}/nota-fiscal": {
+      "get": {
+        "operationId": "obter_nota_fiscal",
+        "summary": "Retorna links da NF-e (PDF/XML) e a chave de acesso de um pedido faturado.",
+        "tags": [
+          "autosservico-financeiro"
+        ],
+        "parameters": [
+          {
+            "name": "numero_pedido",
+            "in": "path",
+            "required": true,
+            "description": "Número do pedido",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "numero_nf": {
+                      "type": "string",
+                      "example": "000123456"
+                    },
+                    "chave_acesso": {
+                      "type": "string",
+                      "example": "35261100000000000100550010001234561000000000"
+                    },
+                    "url_pdf": {
+                      "type": "string",
+                      "example": "https://minhaconta.acme.com.br/nf/000123456.pdf"
+                    },
+                    "url_xml": {
+                      "type": "string",
+                      "example": "https://minhaconta.acme.com.br/nf/000123456.xml"
+                    }
+                  }
+                },
+                "example": {
+                  "numero_nf": "000123456",
+                  "chave_acesso": "35261100000000000100550010001234561000000000",
+                  "url_pdf": "https://minhaconta.acme.com.br/nf/000123456.pdf",
+                  "url_xml": "https://minhaconta.acme.com.br/nf/000123456.xml"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token inválido"
+          },
+          "404": {
+            "description": "Recurso não encontrado"
+          },
+          "422": {
+            "description": "Dados inválidos ou regra de negócio violada (ex.: remarcação com menos de 24h)"
+          }
+        }
+      }
+    }
+  }
+}
