@@ -22,6 +22,10 @@ Son dos cosas separadas:
 - **Página**: toggle PT · ES · EN en el header. Se guarda en `localStorage` (si el navegador lo bloquea, funciona igual pero no se recuerda). Cambia todos los textos, `<html lang>`, el título, el formato de hora del log (incluidas las entradas ya registradas) y los valores precargados que no se hayan editado.
 - **Messenger**: selector «Idioma del Messenger» en la tarjeta de identidad. Opciones: automático (navegador), pt-BR, es, en, o **seguir el idioma de la página**. Esta última reinicia el Messenger con `language_override` igual al idioma de la página apenas se elige, y de nuevo cada vez que se cambia el idioma de la página, conservando la identidad activa.
 
+## Backend de prueba para Fin (`mock-api/`)
+
+El repo incluye una API simulada del contrato ACME (`mock-api/openapi.json`) para conectarla a Fin como Data connectors y probarla desde este sandbox, entrando con user_id `acme-001`. Va en Render, separada del front; Vercel no la compila. Datos ficticios, escenarios, deploy y cómo conectar Fin: ver [`mock-api/README.md`](mock-api/README.md).
+
 ## Variables de entorno
 
 | Variable | Obligatoria | Valores | Qué hace |

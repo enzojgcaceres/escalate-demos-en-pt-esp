@@ -1,0 +1,22 @@
+# Blueprint de Render para la API simulada (mock-api/). El front sigue en Vercel.
+services:
+  - type: web
+    name: acme-mock-api
+    runtime: node
+    rootDir: mock-api
+    plan: free
+    buildCommand: npm ci && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    autoDeploy: true
+    # Solo redeploya cuando cambia el backend (o este archivo), no con cambios del front.
+    buildFilter:
+      paths:
+        - mock-api/**
+        - render.yaml
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      # Se carga a mano en el panel de Render (sync: false): nunca va en el repo.
+      - key: ACME_API_TOKEN
+        sync: false
