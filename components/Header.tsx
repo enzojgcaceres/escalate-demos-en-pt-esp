@@ -1,17 +1,14 @@
 'use client';
 
+import Image from 'next/image';
 import { FlaskConical } from 'lucide-react';
 import { useI18n } from '@/components/LocaleProvider';
 import { BRAND } from '@/lib/brand';
 import { LOCALES, dictionaries } from '@/lib/i18n';
 
-/** PROVISORIO: inicial sobre la paleta `brand`. Reemplazar por el logo oficial (por ejemplo un <img> desde /public). */
+/** Isotipo oficial. El nombre va al lado como texto, así que la imagen es decorativa (alt vacío). */
 function BrandMark() {
-  return (
-    <div className="grid h-9 w-9 place-items-center rounded-xl bg-brand-600 text-white shadow-card">
-      <span className="font-display text-xl leading-none">{BRAND.initial}</span>
-    </div>
-  );
+  return <Image src={BRAND.logo} alt="" width={36} height={36} priority className="h-9 w-9 rounded-xl shadow-card" />;
 }
 
 export default function Header() {
