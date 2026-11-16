@@ -69,10 +69,11 @@ Para que el **Messenger** hable ese idioma, además tiene que estar habilitado e
 |---|---|
 | Colores | Paleta `brand` en `tailwind.config.ts` (6 tonos). Cambia botones, acentos, retícula del fondo, foco de campos y estados en vivo. |
 | Nombre | `BRAND.name` en `lib/brand.ts` (se usa en header, título y pie). |
-| Logo | `BrandMark` en `components/Header.tsx`. Hoy es una inicial (`BRAND.initial`); para un logo, poner el archivo en `public/` y reemplazar por `<img>` o `next/image`. |
+| Logo | Isotipo oficial en `public/brand/escalate-isotipo.png` (ruta en `BRAND.logo`, se muestra en `BrandMark` de `components/Header.tsx`). |
+| Favicon | `app/icon.png` y `app/apple-icon.png` (Next los detecta solos). |
 | Tipografías | `app/layout.tsx` (next/font) y `fontFamily` en `tailwind.config.ts`. |
 
-> **Pendiente:** la paleta y el logo actuales son **provisorios** (tonos neutros + inicial «E») hasta tener los oficiales de Escalate Ops.
+> Logo, favicon y el azul principal (`brand-600` = `#3C486B`) son los oficiales, tomados de escalateops.com. Los demás tonos de la paleta son derivados y **provisorios** hasta tener una paleta oficial completa.
 
 ## Deploy en Vercel
 
@@ -87,7 +88,7 @@ Para que el **Messenger** hable ese idioma, además tiene que estar habilitado e
 |---|---|
 | `lib/intercom.ts` | Lectura y validación de app_id y región, `api_base`, helper `ic()` y `reboot()` (shutdown + boot) |
 | `lib/i18n.ts` | Diccionario único pt-BR / es / en |
-| `lib/brand.ts` | Nombre y logo provisorio |
+| `lib/brand.ts` | Nombre y ruta del logo |
 | `components/IntercomScript.tsx` | El snippet oficial de instalación, sin cambios salvo app_id y api_base parametrizados. No se renderiza sin app_id válido |
 | `components/LocaleProvider.tsx` | Idioma actual, persistencia en `localStorage`, `<html lang>` y metadata |
 | `components/Header.tsx` | Marca y toggle de idioma |

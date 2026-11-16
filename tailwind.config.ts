@@ -12,16 +12,17 @@ const config: Config = {
         },
         line: '#E1E4EA',
         // ── MARCA ─────────────────────────────────────────────────────────────
-        // PROVISORIO: tonos neutros hasta tener la paleta oficial de Escalate Ops.
-        // Cambiando estos 6 valores se rebrandea toda la página (botones, acentos,
-        // retícula del fondo, foco de los campos y estados en vivo).
+        // 600 = azul oficial de Escalate Ops (#3C486B, fondo del isotipo y del banner).
+        // El resto son tonos derivados para hover, fondos y foco: PROVISORIOS hasta
+        // tener una paleta oficial completa. Cambiando estos 6 valores se rebrandea
+        // toda la página (botones, acentos, retícula, foco de campos, estados en vivo).
         brand: {
-          50: '#EEF1F6',
-          100: '#D9DFEA',
-          400: '#6B7FA3',
-          500: '#4A5F86',
-          600: '#34476B',
-          900: '#18213A',
+          50: '#EEF0F5',
+          100: '#D8DCE7',
+          400: '#6F7BA0',
+          500: '#4E5B82',
+          600: '#3C486B',
+          900: '#1E2438',
         },
         // ──────────────────────────────────────────────────────────────────────
         pulse: '#FF6B5E',     // acento para estados en vivo y errores del log
